@@ -2,37 +2,28 @@
 
 A fullstack webapp to help ethically fight reservation bots by securing booking slots.
 
-## Architecture
-
-- **Frontend**: Next.js 14+ (Cloudflare Pages)
-- **API**: Cloudflare Workers
-- **Database**: Cloudflare D1 (SQLite)
-- **Storage**: Cloudflare R2 (for screenshots/logs)
-- **Queue**: Cloudflare Queues (for job processing)
-- **Infrastructure**: Pulumi (TypeScript)
-
 ## Tech Stack
 
-- **Frontend**: Next.js 14+ (App Router), HeroUI, Tremor, Tailwind CSS
+- **Frontend**: Next.js 16 (App Router), HeroUI, Tremor, Tailwind CSS 4
 - **Forms**: React Hook Form + Zod
 - **Backend**: Cloudflare Workers (Hono framework)
 - **Database**: Cloudflare D1 (SQLite) with Drizzle ORM
 - **Storage**: Cloudflare R2 (screenshots/logs)
 - **Queue**: Cloudflare Queues
 - **Infrastructure**: Pulumi (TypeScript)
-- **Monorepo**: pnpm workspaces
-- **Language**: TypeScript (strict mode)
+- **Monorepo**: pnpm workspaces + Turborepo
+- **Documentation**: Fumadocs (integrated into Next.js app)
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+
-- pnpm 8+
-- Cloudflare account
-- Docker & Docker Compose (for local development)
-- **Just** (optional, recommended) - `brew install just` or `cargo install just`
-  - Alternative: Use `make` (usually pre-installed) or direct `pnpm` commands
+- Node.js >=20.9.0 (Next.js 16 requirement)
+- pnpm >=8.0.0
+- Cloudflare account (for deployment)
+- OrbStack or Docker (for local database)
+- **Just** (recommended) - `brew install just` or `cargo install just`
+  - Alternative: Use `make` or direct `pnpm` commands
 
 ### Setup
 
@@ -54,16 +45,14 @@ just setup
 
 See [Secrets Management](./docs/operations/secrets.md) for secrets management.
 
-3. Set up local development:
+3. Start local services:
 ```bash
-# Start local D1 database (via Docker)
-docker-compose up -d
+# Start OrbStack/Docker (for local database)
+just orbstack-start  # or open OrbStack app
+just docker-up
 
-# Run database migrations
-pnpm db:migrate
-
-# Start development server
-pnpm dev
+# Start development servers
+just dev
 ```
 
 ### Project Structure
@@ -84,7 +73,7 @@ reserve/
 
 ### Quick Commands
 
-Use **Just** (recommended) or **Make** for a curated command list:
+Use **Just** (recommended) for a curated command list:
 
 ```bash
 just setup      # First-time setup
@@ -95,41 +84,17 @@ just docs-dev   # Start docs server (view at http://localhost:3000/docs)
 just --list     # See all available commands
 ```
 
-### Documentation
-
-Project documentation is built with **Fumadocs** and integrated into the Next.js app:
-
-```bash
-just docs-dev   # Start dev server with docs
-# Then visit: http://localhost:3000/docs
-```
-
-The docs are served at the `/docs` route when the Next.js dev server is running.
-
-Or use **Make**:
-```bash
-make setup      # First-time setup
-make dev        # Start all development servers
-make help       # See all available commands
-```
-
-### Direct pnpm Commands
-
-- `pnpm dev` - Start development server (frontend)
-- `pnpm build` - Build all packages (uses Turborepo)
-- `pnpm lint` - Lint all packages
-- `pnpm format` - Format code with Prettier
-- `pnpm typecheck` - Type check all packages
-
-See [Developer Recipes](./docs/development/recipes.md) for complete command reference.
+Or use **Make** or direct **pnpm** commands. See [Developer Recipes](./docs/development/recipes.md) for the complete command reference.
 
 ## Documentation
 
-- **[Getting Started](./docs/getting-started/README.md)** - Setup and installation
-- **[Architecture](./docs/architecture/README.md)** - System design and decisions
-- **[Development](./docs/development/README.md)** - Developer guides
-- **[Operations](./docs/operations/README.md)** - Deployment and operations
-- **[Documentation Guide](./DOCUMENTATION.md)** - Documentation tools and organization
+Project documentation is available at `/docs` when running the dev server, or browse the [`docs/`](./docs/) directory:
+
+- **[Getting Started](./docs/getting-started/)** - Setup and installation
+- **[Architecture](./docs/architecture/)** - System design and decisions
+- **[Development](./docs/development/)** - Developer guides and recipes
+- **[Operations](./docs/operations/)** - Deployment and operations
+- **[Reference](./docs/reference/)** - API and configuration reference
 
 ## Deployment
 
