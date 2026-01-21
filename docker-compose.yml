@@ -1,9 +1,8 @@
-version: '3.8'
-
 services:
-  # Local D1 database emulator (via Miniflare)
+  # Local SQLite database for D1 emulation
+  # Compatible with OrbStack and Docker
   # Note: Cloudflare D1 doesn't have a local emulator yet,
-  # so we'll use SQLite directly for local dev
+  # so we use SQLite directly for local dev
   db:
     image: nouchka/sqlite3:latest
     volumes:
@@ -11,11 +10,17 @@ services:
     command: sqlite3 /data/reserve.db
     environment:
       - SQLITE_DATABASE=/data/reserve.db
+    # OrbStack compatibility: ensure proper file permissions
+    user: "${UID:-1000}:${GID:-1000}"
+    restart: unless-stopped
 
-  # Optional: Add a database admin UI
+  # Optional: Database admin UI (uncomment to use)
   # db-admin:
-  #   image: phpmyadmin/phpmyadmin
+  #   image: phpmyadmin/phpmyadmin:latest
   #   ports:
   #     - "8080:80"
   #   environment:
   #     - PMA_HOST=db
+  #   depends_on:
+  #     - db
+  #   restart: unless-stopped

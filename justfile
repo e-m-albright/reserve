@@ -40,6 +40,8 @@ dev-automation:
 
 # Build all packages
 build:
+    # Remove Next.js lock file if it exists (from interrupted builds)
+    @rm -f apps/web/.next/lock 2>/dev/null || true
     pnpm build
 
 # Build specific package
@@ -115,24 +117,45 @@ db-reset:
     pnpm --filter api db:migrate --force
 
 # ============================================================================
-# DOCKER
+# DOCKER / ORBSTACK
 # ============================================================================
 
-# Start Docker services (database, etc.)
+# Start OrbStack (if using OrbStack)
+orbstack-start:
+    @echo "🚀 Starting OrbStack..."
+    orbctl start || echo "⚠️  OrbStack may already be running or not installed"
+
+# Start Docker/OrbStack services (database, etc.)
+# Works with both Docker Desktop and OrbStack
 docker-up:
-    docker-compose up -d
+    @if ! docker info >/dev/null 2>&1; then \
+        echo "⚠️  Docker/OrbStack daemon not running"; \
+        echo "   For OrbStack: run 'just orbstack-start' or open the OrbStack app"; \
+        echo "   For Docker Desktop: start Docker Desktop"; \
+        exit 1; \
+    fi
+    docker compose up -d
+    @echo "✅ Docker/OrbStack services started"
 
-# Stop Docker services
+# Stop Docker/OrbStack services
 docker-down:
-    docker-compose down
+    docker compose down
 
-# View Docker logs
+# View Docker/OrbStack logs
 docker-logs:
-    docker-compose logs -f
+    docker compose logs -f
 
-# Restart Docker services
+# Restart Docker/OrbStack services
 docker-restart: docker-down docker-up
-    @echo "✅ Docker services restarted"
+    @echo "✅ Docker/OrbStack services restarted"
+
+# Check Docker/OrbStack status
+docker-status:
+    @if ! docker info >/dev/null 2>&1; then \
+        echo "⚠️  Docker/OrbStack daemon not running"; \
+    else \
+        docker compose ps; \
+    fi
 
 # ============================================================================
 # CLOUDFLARE / DEPLOYMENT
@@ -228,11 +251,16 @@ docs-install:
     cd apps/web && pnpm add fumadocs-core fumadocs-mdx fumadocs-ui @types/mdx
 
 # Start docs development server
+# Fumadocs is integrated into the Next.js app - docs are served at /docs route
 docs-dev:
-    @echo "📚 Starting docs dev server..."
+    @echo "📚 Starting Next.js dev server with Fumadocs..."
     @echo "⚠️  Note: First run will generate .source/ folder (this is normal)"
+    @echo ""
+    @echo "📖 Once the server starts, visit:"
+    @echo "   http://localhost:3000/docs"
+    @echo "   (or http://localhost:3001/docs if port 3000 is in use)"
+    @echo ""
     cd apps/web && pnpm dev
-    @echo "📚 Docs available at http://localhost:3000/docs"
 
 # Build documentation
 docs-build:
@@ -241,7 +269,12 @@ docs-build:
 # View docs locally (after build)
 docs-preview:
     cd apps/web && pnpm start
-    @echo "📚 Docs preview at http://localhost:3000/docs"
+    @echo "📚 Production docs available at http://localhost:3000/docs"
+
+# Open docs in browser (macOS)
+docs-open:
+    @echo "🌐 Opening docs in browser..."
+    @open http://localhost:3000/docs || echo "⚠️  Make sure the dev server is running first (just docs-dev)"
 
 # Generate docs source files
 docs-generate:
@@ -304,11 +337,20 @@ setup:
         echo "⚠️  .env.local already exists"; \
     fi
     @echo ""
-    @echo "3. Starting Docker services..."
-    docker-compose up -d
+    @echo "3. Starting Docker/OrbStack services..."
+    @if docker info >/dev/null 2>&1; then \
+        docker compose up -d && echo "✅ Docker/OrbStack services started"; \
+    else \
+        echo "⚠️  Docker/OrbStack daemon not running"; \
+        echo "   For OrbStack: run 'just orbstack-start' or open the OrbStack app"; \
+        echo "   For Docker Desktop: start Docker Desktop"; \
+        echo "   Then run 'just docker-up' to start services"; \
+    fi
     @echo ""
-    @echo "4. Running database migrations..."
-    pnpm --filter api db:migrate || echo "⚠️  Database migrations failed (this is OK if DB doesn't exist yet)"
+    @echo "4. Database setup..."
+    @echo "   Note: Run 'wrangler dev' once to create local D1 database, then:"
+    @echo "   - 'just db-generate' to generate migrations from schema changes"
+    @echo "   - 'just db-migrate' to apply migrations (requires local DB or D1 connection)"
     @echo ""
     @echo "✅ Setup complete! Next steps:"
     @echo "   - Fill in apps/api/.dev.vars with your Cloudflare credentials"

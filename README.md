@@ -91,8 +91,20 @@ just setup      # First-time setup
 just dev        # Start all development servers
 just build      # Build all packages
 just check      # Run lint + typecheck
+just docs-dev   # Start docs server (view at http://localhost:3000/docs)
 just --list     # See all available commands
 ```
+
+### Documentation
+
+Project documentation is built with **Fumadocs** and integrated into the Next.js app:
+
+```bash
+just docs-dev   # Start dev server with docs
+# Then visit: http://localhost:3000/docs
+```
+
+The docs are served at the `/docs` route when the Next.js dev server is running.
 
 Or use **Make**:
 ```bash

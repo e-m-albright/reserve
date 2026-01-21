@@ -7,8 +7,10 @@ import { notFound } from 'next/navigation';
 interface FumadocsPageData {
   title: string;
   description?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Fumadocs TOC type is complex
   toc: any;
   full?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- MDX components have complex prop types
   body: React.ComponentType<{ components?: any }>;
 }
 
