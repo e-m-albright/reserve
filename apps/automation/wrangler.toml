@@ -1,0 +1,21 @@
+name = "reserve-automation"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[env.development]
+name = "reserve-automation-dev"
+
+# Consume from booking queue
+[[queues]]
+consumers = [{ queue = "booking-queue", max_batch_size = 1 }]
+
+# Access to D1 for logging
+[[d1_databases]]
+binding = "DB"
+database_name = "reserve"
+database_id = "your-database-id-here"
+
+# R2 for screenshots
+[[r2_buckets]]
+binding = "LOGS"
+bucket_name = "reserve-logs"

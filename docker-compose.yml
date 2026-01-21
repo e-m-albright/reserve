@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  # Local D1 database emulator (via Miniflare)
+  # Note: Cloudflare D1 doesn't have a local emulator yet,
+  # so we'll use SQLite directly for local dev
+  db:
+    image: nouchka/sqlite3:latest
+    volumes:
+      - ./data:/data
+    command: sqlite3 /data/reserve.db
+    environment:
+      - SQLITE_DATABASE=/data/reserve.db
+
+  # Optional: Add a database admin UI
+  # db-admin:
+  #   image: phpmyadmin/phpmyadmin
+  #   ports:
+  #     - "8080:80"
+  #   environment:
+  #     - PMA_HOST=db
