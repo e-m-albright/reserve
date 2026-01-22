@@ -6,8 +6,9 @@ compatibility_date = "2024-01-01"
 name = "reserve-automation-dev"
 
 # Consume from booking queue
-[[queues]]
-consumers = [{ queue = "booking-queue", max_batch_size = 1 }]
+[[queues.consumers]]
+queue = "booking-queue"
+max_batch_size = 1
 
 # Access to D1 for logging
 [[d1_databases]]

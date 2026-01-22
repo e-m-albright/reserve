@@ -242,6 +242,11 @@ migration name:
 invite-generate:
     @node -e "console.log('INVITE-' + require('crypto').randomBytes(4).toString('hex').toUpperCase())"
 
+# Generate secure random secret for AUTH_SECRET
+secret-generate:
+    @node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+    @echo "Copy this value to AUTH_SECRET in your .dev.vars files"
+
 # ============================================================================
 # DOCUMENTATION (FUMADOCS)
 # ============================================================================

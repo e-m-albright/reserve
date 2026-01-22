@@ -20,6 +20,7 @@ database_id = "your-dev-database-id-here"
 binding = "LOGS"
 bucket_name = "reserve-logs"
 
-# Queue for booking jobs
-[[queues]]
-producers = [{ queue = "booking-queue" }]
+# Queue for booking jobs (producer)
+[[queues.producers]]
+queue = "booking-queue"
+binding = "BOOKING_QUEUE"

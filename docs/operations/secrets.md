@@ -59,6 +59,61 @@ wrangler secret list
 - Once set, values cannot be retrieved (only updated/deleted)
 - Secrets are scoped to each Worker/environment
 
+## Cloudflare API Token Setup
+
+### Required Permissions
+
+For this project, you need a **Custom API Token** with permissions for:
+
+1. **Cloudflare Workers** - Deploy and manage Workers
+2. **Cloudflare D1** - Create and manage databases
+3. **Cloudflare R2** - Create and manage buckets
+4. **Cloudflare Queues** - Create and manage queues
+5. **Cloudflare Pages** - Deploy Pages projects (if using Pages)
+
+### Creating the Token
+
+1. Go to [Cloudflare Dashboard → My Profile → API Tokens](https://dash.cloudflare.com/profile/api-tokens)
+2. Click **"Create Token"**
+3. Click **"Create Custom Token"**
+4. Configure permissions:
+
+   **Account Permissions:**
+   - **Workers Scripts**: Edit
+   - **Workers KV Storage**: Edit
+   - **D1**: Edit
+   - **R2**: Edit
+   - **Queues**: Edit
+   - **Pages**: Edit (if deploying to Pages)
+   - **Account Settings**: Read (for account ID)
+
+   **Zone Permissions** (if using custom domains):
+   - **DNS**: Edit (if managing DNS records)
+   - **Zone Settings**: Read
+
+5. **Account Resources**: Select your account
+6. **Client IP Address Filtering**: Optional (recommended for security)
+7. **TTL**: Set expiration (or leave blank for no expiration)
+8. Click **"Continue to summary"** → **"Create Token"**
+
+### Using the Token
+
+Add the token to your `.dev.vars` files:
+
+```bash
+# apps/api/.dev.vars
+CLOUDFLARE_ACCOUNT_ID=your-account-id-here
+CLOUDFLARE_API_TOKEN=your-api-token-here
+```
+
+**Security Notes:**
+- Never commit API tokens to git
+- Use different tokens for development and production
+- Rotate tokens regularly
+- Use IP filtering when possible
+
+See [Cloudflare API Token Setup](../getting-started/cloudflare-token.md) for detailed token creation instructions.
+
 ## Cloudflare Secrets Store (Beta) - For Shared Secrets
 
 If you have secrets shared across multiple Workers, use Secrets Store:
@@ -117,17 +172,46 @@ interface Env {
 ## Required Secrets
 
 ### API Worker (`apps/api/.dev.vars`)
-```
-AUTH_SECRET=<jwt-signing-secret>
-ADMIN_EMAIL=<admin-email>
-CLOUDFLARE_ACCOUNT_ID=<account-id>
-CLOUDFLARE_API_TOKEN=<api-token>
+
+```bash
+# JWT signing secret - use a long, random string (at least 32 characters)
+# Generate with: openssl rand -hex 32
+# Or: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+AUTH_SECRET=your-random-secret-here-minimum-32-chars
+
+# Admin user email - your email address for admin access
+ADMIN_EMAIL=your-email@example.com
+
+# Cloudflare credentials (from dashboard)
+CLOUDFLARE_ACCOUNT_ID=your-account-id-here
+CLOUDFLARE_API_TOKEN=your-api-token-here
 ```
 
+**AUTH_SECRET**:
+- Used for signing and verifying JWTs
+- Should be a long, random, cryptographically secure string
+- Minimum 32 characters recommended
+- Generate with: `openssl rand -hex 32` or `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+- **Never share or commit this value**
+
+**ADMIN_EMAIL**:
+- Your email address for admin access
+- Used to identify the first admin user
+- Can be any valid email address you control
+
 ### Automation Worker (`apps/automation/.dev.vars`)
+
+```bash
+# Same AUTH_SECRET as API worker (for JWT verification if needed)
+AUTH_SECRET=your-random-secret-here-minimum-32-chars
 ```
-AUTH_SECRET=<jwt-signing-secret>
-```
+
+**Notes**:
+- **Same AUTH_SECRET**: Use the same value as the API worker so both can verify JWTs
+- **No Cloudflare API credentials needed**: The automation worker doesn't need `CLOUDFLARE_ACCOUNT_ID` or `CLOUDFLARE_API_TOKEN` for local dev
+  - D1 and R2 are accessed via bindings (configured in `wrangler.toml`)
+  - Queue consumption is handled by Wrangler automatically
+  - API tokens are only needed for deploying/managing resources, not for runtime access
 
 ### Next.js Frontend (`.env.local` - OK for frontend)
 ```
