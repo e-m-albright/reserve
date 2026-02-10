@@ -1,35 +1,56 @@
 # Reserve
 
-A fullstack webapp to help ethically fight reservation bots by securing booking slots.
+An ethical booking assistant that helps users secure hard-to-get reservation slots.
 
 ## Tech Stack
 
-- **Frontend**: Next.js 16 (App Router), HeroUI, Tremor, Tailwind CSS 4
+- **Runtime**: Bun
+- **Frontend**: Next.js 16 (App Router), React 19, HeroUI, Tailwind CSS 4
 - **Forms**: React Hook Form + Zod
 - **Backend**: Cloudflare Workers (Hono framework)
 - **Database**: Cloudflare D1 (SQLite) with Drizzle ORM
 - **Storage**: Cloudflare R2 (screenshots/logs)
 - **Queue**: Cloudflare Queues
 - **Infrastructure**: Pulumi (TypeScript)
-- **Monorepo**: pnpm workspaces + Turborepo
+- **Monorepo**: Bun workspaces + Turborepo
 - **Documentation**: Fumadocs (integrated into Next.js app)
+- **Linting**: Biome
+
+## Current Status
+
+### Implemented
+- User authentication (signup/login/logout with JWT + PBKDF2)
+- Invite code system (generation, validation, one-time use)
+- Admin user designation
+- Protected routes with auth middleware
+- Frontend pages (login, signup, home with auth states)
+- Database schema (users, invites, booking requests, logs)
+- CLI tools for admin bootstrapping and invite generation
+- Documentation site with Fumadocs
+
+### In Progress / TODO
+- Booking request API endpoints (CRUD)
+- Booking automation logic (browser automation)
+- Credential encryption for stored booking site credentials
+- Screenshot capture and R2 storage
+- Admin dashboard UI
+- Booking status monitoring UI
+- Email notifications
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js >=20.9.0 (Next.js 16 requirement)
-- pnpm >=8.0.0
+- Bun (https://bun.sh)
 - Cloudflare account (for deployment)
-- OrbStack or Docker (for local database)
+- OrbStack or Docker (for local services)
 - **Just** (recommended) - `brew install just` or `cargo install just`
-  - Alternative: Use `make` or direct `pnpm` commands
 
 ### Setup
 
 1. Install dependencies:
 ```bash
-pnpm install
+bun install
 ```
 
 2. Set up environment variables:
@@ -60,41 +81,59 @@ just dev
 ```
 reserve/
 ├── apps/
-│   ├── web/          # Next.js frontend
-│   ├── api/          # Cloudflare Workers API
+│   ├── web/          # Next.js 16 frontend (React 19)
+│   ├── api/          # Cloudflare Workers API (Hono)
 │   └── automation/   # Booking automation worker
 ├── packages/
 │   └── shared/       # Shared types and utilities
 ├── infra/            # Pulumi infrastructure code
-└── docker-compose.yml
+├── docs/             # MDX documentation (Fumadocs)
+└── .architecture/    # Architecture decision records
 ```
 
 ## Development
 
 ### Quick Commands
 
-Use **Just** (recommended) for a curated command list:
-
 ```bash
 just setup      # First-time setup
 just dev        # Start all development servers
 just build      # Build all packages
 just check      # Run lint + typecheck
-just docs-dev   # Start docs server (view at http://localhost:3000/docs)
+just docs-dev   # Start docs server (http://localhost:3000/docs)
 just --list     # See all available commands
 ```
 
-Or use **Make** or direct **pnpm** commands. See [Developer Recipes](./docs/development/recipes.md) for the complete command reference.
+### Database Commands
+
+```bash
+just db-generate  # Generate migrations from schema
+just db-migrate   # Apply migrations
+just db-studio    # Open Drizzle Studio GUI
+```
+
+### Admin Utilities
+
+```bash
+just admin-hash <password>   # Generate password hash for bootstrap admin
+just invite-generate         # Generate invite code format
+just secret-generate         # Generate AUTH_SECRET value
+```
+
+## API Endpoints
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/health` | GET | - | Health check |
+| `/api/auth/signup` | POST | - | Register with invite code |
+| `/api/auth/login` | POST | - | Authenticate user |
+| `/api/auth/logout` | POST | - | Clear auth session |
+| `/api/auth/me` | GET | Required | Get current user |
+| `/api/auth/invites` | POST | Admin | Generate invite code |
 
 ## Documentation
 
-Project documentation is available at `/docs` when running the dev server, or browse the [`docs/`](./docs/) directory:
-
-- **[Getting Started](./docs/getting-started/)** - Setup and installation
-- **[Architecture](./docs/architecture/)** - System design and decisions
-- **[Development](./docs/development/)** - Developer guides and recipes
-- **[Operations](./docs/operations/)** - Deployment and operations
-- **[Reference](./docs/reference/)** - API and configuration reference
+Project documentation is available at `/docs` when running the dev server, or browse the [`docs/`](./docs/) directory.
 
 ## Deployment
 
@@ -105,5 +144,5 @@ pulumi up
 ```
 
 Deploy to Cloudflare:
-- Frontend: Automatically via Cloudflare Pages (connected to git)
-- Workers: `wrangler deploy` from respective app directories
+- Frontend: Cloudflare Pages (connected to git)
+- Workers: `just deploy-api` or `just deploy-automation`
