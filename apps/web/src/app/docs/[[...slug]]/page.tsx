@@ -1,17 +1,17 @@
 import { source } from '@/lib/source';
-import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/page';
+import type { TOCItemType } from 'fumadocs-core/toc';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
+import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/page';
+import type { MDXComponents } from 'mdx/types';
 import { notFound } from 'next/navigation';
 
 // Type definition for Fumadocs page data
 interface FumadocsPageData {
   title: string;
   description?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Fumadocs TOC type is complex
-  toc: any;
+  toc: TOCItemType[];
   full?: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- MDX components have complex prop types
-  body: React.ComponentType<{ components?: any }>;
+  body: React.ComponentType<{ components?: MDXComponents }>;
 }
 
 export default async function Page(props: { params: Promise<{ slug?: string[] }> }) {

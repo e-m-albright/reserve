@@ -1,3 +1,4 @@
+import { logger } from './lib/logger';
 import type { Env } from './types';
 
 export default {
@@ -9,7 +10,7 @@ export default {
         await processBooking(job, env);
         message.ack();
       } catch (error) {
-        console.error('Error processing booking job:', error);
+        logger.error({ err: error, messageId: message.id }, 'booking job processing failed');
         message.retry();
       }
     }
@@ -43,5 +44,5 @@ async function processBooking(job: BookingJob, _env: Env): Promise<void> {
   // 3. Find available slots matching criteria
   // 4. Book slot
   // 5. Log results and screenshots
-  console.log('Processing booking job:', job);
+  logger.info({ userId: job.userId, criteria: job.bookingCriteria }, 'processing booking job');
 }

@@ -1,6 +1,9 @@
 declare module 'fumadocs-mdx:collections/server' {
-  export const docs: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    toFumadocsSource(): any;
-  };
+  import type { Source, SourceConfig } from 'fumadocs-core/source';
+
+  interface DocsCollection {
+    toFumadocsSource(): Source<SourceConfig>;
+  }
+
+  export const docs: DocsCollection;
 }
