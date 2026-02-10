@@ -10,7 +10,16 @@
 
 import { execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import * as readline from 'node:readline';
+import { fileURLToPath } from 'node:url';
+
+// Get the directory where this script lives (apps/api/src/cli)
+const __dirname = dirname(fileURLToPath(import.meta.url));
+// Repository root directory
+const ROOT_DIR = resolve(__dirname, '../../../..');
+// Wrangler config path relative to root
+const WRANGLER_CONFIG = 'apps/api/wrangler.toml';
 
 /**
  * Hash password using Web Crypto API (PBKDF2)
@@ -71,10 +80,10 @@ function generateInviteCode(): string {
 
 function runD1Command(sql: string): boolean {
   try {
-    execSync(`bunx wrangler d1 execute reserve --local --command "${sql.replace(/"/g, '\\"')}"`, {
-      cwd: process.cwd(),
-      stdio: 'pipe',
-    });
+    execSync(
+      `bunx wrangler d1 execute reserve --local -c ${WRANGLER_CONFIG} --command "${sql.replace(/"/g, '\\"')}"`,
+      { cwd: ROOT_DIR, stdio: 'pipe' }
+    );
     return true;
   } catch (_error) {
     return false;
@@ -83,10 +92,13 @@ function runD1Command(sql: string): boolean {
 
 function checkD1Exists(): boolean {
   try {
-    execSync('bunx wrangler d1 execute reserve --local --command "SELECT 1"', {
-      cwd: process.cwd(),
-      stdio: 'pipe',
-    });
+    execSync(
+      `bunx wrangler d1 execute reserve --local -c ${WRANGLER_CONFIG} --command "SELECT 1"`,
+      {
+        cwd: ROOT_DIR,
+        stdio: 'pipe',
+      }
+    );
     return true;
   } catch {
     return false;
@@ -151,8 +163,8 @@ async function main() {
   // Check if user already exists
   try {
     const checkResult = execSync(
-      `bunx wrangler d1 execute reserve --local --command "SELECT id FROM users WHERE email = '${email.toLowerCase()}'"`,
-      { cwd: process.cwd(), encoding: 'utf-8' }
+      `bunx wrangler d1 execute reserve --local -c ${WRANGLER_CONFIG} --command "SELECT id FROM users WHERE email = '${email.toLowerCase()}'"`,
+      { cwd: ROOT_DIR, encoding: 'utf-8' }
     );
     if (checkResult.includes('"results":[{')) {
       console.log('⚠️  User with this email already exists.');
@@ -184,8 +196,8 @@ async function main() {
   let finalUserId = userId;
   try {
     const result = execSync(
-      `bunx wrangler d1 execute reserve --local --command "SELECT id FROM users WHERE email = '${email.toLowerCase()}'" --json`,
-      { cwd: process.cwd(), encoding: 'utf-8' }
+      `bunx wrangler d1 execute reserve --local -c ${WRANGLER_CONFIG} --command "SELECT id FROM users WHERE email = '${email.toLowerCase()}'" --json`,
+      { cwd: ROOT_DIR, encoding: 'utf-8' }
     );
     const parsed = JSON.parse(result);
     if (parsed[0]?.results?.[0]?.id) {

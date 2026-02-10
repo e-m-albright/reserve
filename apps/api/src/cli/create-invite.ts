@@ -8,6 +8,13 @@
  */
 
 import { execSync } from 'node:child_process';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+// Get paths for wrangler execution
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT_DIR = resolve(__dirname, '../../../..');
+const WRANGLER_CONFIG = 'apps/api/wrangler.toml';
 
 function generateId(): string {
   return crypto.randomUUID().replace(/-/g, '').slice(0, 21);
@@ -41,8 +48,8 @@ async function main() {
   let adminId: string;
   try {
     const result = execSync(
-      `bunx wrangler d1 execute reserve --local --command "SELECT id, is_admin FROM users WHERE email = '${adminEmail.toLowerCase()}'" --json`,
-      { cwd: process.cwd(), encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }
+      `bunx wrangler d1 execute reserve --local -c ${WRANGLER_CONFIG} --command "SELECT id, is_admin FROM users WHERE email = '${adminEmail.toLowerCase()}'" --json`,
+      { cwd: ROOT_DIR, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }
     );
     const parsed = JSON.parse(result);
     const user = parsed[0]?.results?.[0];
@@ -71,8 +78,8 @@ async function main() {
 
   try {
     execSync(
-      `bunx wrangler d1 execute reserve --local --command "INSERT INTO invites (id, code, created_by, created_at) VALUES ('${inviteId}', '${inviteCode}', '${adminId}', ${now})"`,
-      { cwd: process.cwd(), stdio: 'pipe' }
+      `bunx wrangler d1 execute reserve --local -c ${WRANGLER_CONFIG} --command "INSERT INTO invites (id, code, created_by, created_at) VALUES ('${inviteId}', '${inviteCode}', '${adminId}', ${now})"`,
+      { cwd: ROOT_DIR, stdio: 'pipe' }
     );
 
     console.log('');
