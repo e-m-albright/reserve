@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import authRoutes from './auth/routes';
 import type { Env } from './types';
 
 const app = new Hono<{ Bindings: Env }>();
@@ -11,6 +12,9 @@ app.use('/*', cors());
 app.get('/health', (c) => {
   return c.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+// Auth routes
+app.route('/api/auth', authRoutes);
 
 // API routes will be added here
 app.get('/api/*', (c) => {

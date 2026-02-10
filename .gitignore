@@ -58,3 +58,6 @@ logs
 
 # Fumadocs generated source
 .source
+
+# Working files (ephemeral)
+.agents/

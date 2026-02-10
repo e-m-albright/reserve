@@ -3,7 +3,13 @@
 export interface User {
   id: string;
   email: string;
-  createdAt: Date;
+  createdAt?: Date;
+  isAdmin: boolean;
+}
+
+export interface AuthUser {
+  id: string;
+  email: string;
   isAdmin: boolean;
 }
 
