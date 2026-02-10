@@ -42,6 +42,7 @@
     "ignore": [
       "node_modules",
       ".next",
+      ".svelte-kit",
       ".wrangler",
       "dist",
       ".turbo",
@@ -50,5 +51,20 @@
       ".source",
       ".claude"
     ]
-  }
+  },
+  "overrides": [
+    {
+      "include": ["*.svelte"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUnusedVariables": "off"
+          },
+          "style": {
+            "useConst": "off"
+          }
+        }
+      }
+    }
+  ]
 }

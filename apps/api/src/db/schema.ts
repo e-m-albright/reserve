@@ -47,3 +47,16 @@ export const logs = sqliteTable('logs', {
   screenshotUrl: text('screenshot_url'),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
 });
+
+// Type inference helpers from Drizzle
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+
+export type Invite = typeof invites.$inferSelect;
+export type NewInvite = typeof invites.$inferInsert;
+
+export type BookingRequest = typeof bookingRequests.$inferSelect;
+export type NewBookingRequest = typeof bookingRequests.$inferInsert;
+
+export type Log = typeof logs.$inferSelect;
+export type NewLog = typeof logs.$inferInsert;

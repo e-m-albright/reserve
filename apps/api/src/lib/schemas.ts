@@ -1,8 +1,11 @@
 import { z } from 'zod';
 
 /**
- * Validation schemas for API endpoints
+ * Form/API input validation schemas
  * Per AGENTS.md: Use Zod for all external data validation
+ *
+ * Database types are inferred from Drizzle in src/db/schema.ts.
+ * These form schemas handle user input validation with custom error messages.
  */
 
 export const signupSchema = z.object({

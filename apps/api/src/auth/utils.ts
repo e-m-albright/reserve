@@ -48,7 +48,10 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
   const [saltHex, hashHex] = hash.split(':');
   if (!saltHex || !hashHex) return false;
 
-  const salt = Uint8Array.from(saltHex.match(/.{1,2}/g)?.map((byte) => Number.parseInt(byte, 16)));
+  const saltBytes = saltHex.match(/.{1,2}/g);
+  if (!saltBytes) return false;
+
+  const salt = Uint8Array.from(saltBytes.map((byte) => Number.parseInt(byte, 16)));
 
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
@@ -104,7 +107,7 @@ export async function verifyJWT(token: string, secret: string): Promise<JWTPaylo
     algorithms: ['HS256'],
   });
 
-  return payload as JWTPayload;
+  return payload as unknown as JWTPayload;
 }
 
 /**

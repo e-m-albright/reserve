@@ -1,0 +1,8 @@
+# Cloudflare Workers Development Variables
+# Copy this to .dev.vars and fill in your values
+# .dev.vars is gitignored - never commit secrets!
+
+AUTH_SECRET=your-local-jwt-secret-here
+ADMIN_EMAIL=admin@example.com
+CLOUDFLARE_ACCOUNT_ID=your-account-id
+CLOUDFLARE_API_TOKEN=your-api-token

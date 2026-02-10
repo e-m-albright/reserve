@@ -2,38 +2,26 @@
   "name": "@reserve/web",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
     "lint": "biome check .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
   },
   "dependencies": {
-    "@heroui/react": "^2.8.7",
-    "@heroui/theme": "^2.4.25",
-    "@reserve/shared": "workspace:*",
-    "@tremor/react": "4.0.0-beta-tremor-v4.4",
-    "@types/mdx": "^2.0.13",
-    "framer-motion": "^12.28.1",
-    "fumadocs-core": "^16.4.7",
-    "fumadocs-mdx": "^14.2.6",
-    "fumadocs-ui": "^16.4.7",
-    "next": "^16.1.4",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "react-hook-form": "^7.71.1",
-    "zod": "^4.3.5"
+    "@reserve/shared": "workspace:*"
   },
   "devDependencies": {
-    "@hookform/resolvers": "^5.2.2",
-    "@tailwindcss/postcss": "^4.1.18",
-    "@types/node": "^25.0.9",
-    "@types/react": "^19.2.9",
-    "@types/react-dom": "^19.2.3",
-    "autoprefixer": "^10.4.23",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.18",
-    "typescript": "^5.9.3"
+    "@sveltejs/adapter-auto": "^6.0.0",
+    "@sveltejs/kit": "^2.21.0",
+    "@sveltejs/vite-plugin-svelte": "^5.0.3",
+    "@tailwindcss/vite": "^4.1.0",
+    "svelte": "^5.28.2",
+    "svelte-check": "^4.2.0",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.9.3",
+    "vite": "^6.3.4"
   }
 }

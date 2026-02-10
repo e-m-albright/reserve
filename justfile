@@ -52,8 +52,7 @@ dev-automation:
 
 # Build all packages
 
-build: # Remove Next.js lock file if it exists (from interrupted builds)
-	@rm -f apps/web/.next/lock 2>/dev/null || true
+build:
 	bun build
 
 # Build specific package
@@ -259,8 +258,8 @@ test-watch:
 # Clean all build artifacts
 
 clean:
-	rm -rf apps/_/dist apps/_/.next apps/_/.wrangler
-	rm -rf packages/_/dist
+	rm -rf apps/*/dist apps/*/.svelte-kit apps/*/.wrangler
+	rm -rf packages/*/dist
 	rm -rf .turbo
 	@echo "✅ Cleaned build artifacts"
 
@@ -280,7 +279,7 @@ clean-all: clean
 # Show project structure
 
 tree:
-	tree -I 'node_modules|.next|.wrangler|dist|.turbo' -L 3
+	tree -I 'node_modules|.svelte-kit|.wrangler|dist|.turbo' -L 3
 
 # Check for outdated dependencies
 
@@ -322,61 +321,6 @@ secret-generate:
 
 admin-hash password:
 	@cd apps/api && bun tsx src/cli/bootstrap-admin.ts hash {{password}}
-
-# ============================================================================
-
-# DOCUMENTATION (FUMADOCS)
-
-# ============================================================================
-
-# Install Fumadocs dependencies
-
-docs-install:
-	cd apps/web && bun add fumadocs-core fumadocs-mdx fumadocs-ui @types/mdx
-
-# Start docs development server
-
-# Fumadocs is integrated into the Next.js app - docs are served at /docs route
-
-docs-dev:
-	@echo "📚 Starting Next.js dev server with Fumadocs..."
-	@echo "⚠️ Note: First run will generate .source/ folder (this is normal)"
-	@echo ""
-	@echo "📖 Once the server starts, visit:"
-	@echo " http://localhost:3000/docs"
-	@echo " (or http://localhost:3001/docs if port 3000 is in use)"
-	@echo ""
-	cd apps/web && bun dev
-
-# Build documentation
-
-docs-build:
-	cd apps/web && bun build
-
-# View docs locally (after build)
-
-docs-preview:
-	cd apps/web && bun start
-	@echo "📚 Production docs available at http://localhost:3000/docs"
-
-# Open docs in browser (macOS)
-
-docs-open:
-	@echo "🌐 Opening docs in browser..."
-	@open http://localhost:3000/docs || echo "⚠️ Make sure the dev server is running first (just docs-dev)"
-
-# Generate docs source files
-
-docs-generate:
-	cd apps/web && bun build
-	@echo "✅ Generated docs source files in .source/"
-
-# Clean docs build artifacts
-
-docs-clean:
-	rm -rf apps/web/.source
-	rm -rf apps/web/.next
-	@echo "✅ Cleaned docs build artifacts"
 
 # Upgrade all dependencies to latest versions
 
@@ -427,8 +371,8 @@ setup:
 	 echo "⚠️ apps/automation/.dev.vars already exists"; \
 	 fi
 	@if [ ! -f .env.local ]; then \
-	 echo "NEXT_PUBLIC_API_URL=http://localhost:8787" > .env.local; \
-	 echo "✅ Created .env.local for Next.js frontend"; \
+	 echo "VITE_API_URL=http://localhost:8787" > .env.local; \
+	 echo "✅ Created .env.local for SvelteKit frontend"; \
 	 else \
 	 echo "⚠️ .env.local already exists"; \
 	 fi
@@ -455,7 +399,7 @@ setup:
 	@echo " - Run 'just dev' to start development servers"
 	@echo " - Run 'just --list' to see all available commands"
 	@echo ""
-	@echo "📚 See docs/operations/secrets.md for secrets management guide"
+	@echo "📚 See .agents/operations/secrets.md for secrets management guide"
 
 # ============================================================================
 

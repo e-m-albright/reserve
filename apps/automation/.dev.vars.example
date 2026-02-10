@@ -1,0 +1,5 @@
+# Cloudflare Workers Development Variables
+# Copy this to .dev.vars and fill in your values
+# .dev.vars is gitignored - never commit secrets!
+
+AUTH_SECRET=your-local-jwt-secret-here
