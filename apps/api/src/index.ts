@@ -10,8 +10,14 @@ const app = new Hono<{ Bindings: Env }>();
 // Request logging middleware (first, to capture all requests)
 app.use('*', requestLogger);
 
-// CORS middleware
-app.use('/*', cors());
+// CORS middleware - allow credentials from frontend
+app.use(
+  '/*',
+  cors({
+    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    credentials: true,
+  })
+);
 
 // Health check
 app.get('/health', (c) => {

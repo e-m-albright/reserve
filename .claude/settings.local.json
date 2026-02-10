@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(bun:*)",
-      "Bash(git -C /Users/evan/code/reserve log --oneline -20)",
-      "Bash(xargs:*)"
-    ]
-  }
-}

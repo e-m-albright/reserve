@@ -5,111 +5,98 @@ An ethical booking assistant that helps users secure hard-to-get reservation slo
 ## Tech Stack
 
 - **Runtime**: Bun
-- **Frontend**: Next.js 16 (App Router), React 19, HeroUI, Tailwind CSS 4
-- **Forms**: React Hook Form + Zod
-- **Backend**: Cloudflare Workers (Hono framework)
+- **Frontend**: SvelteKit 2, Svelte 5 (Runes), Tailwind CSS 4
+- **Backend**: Cloudflare Workers (Hono)
 - **Database**: Cloudflare D1 (SQLite) with Drizzle ORM
 - **Storage**: Cloudflare R2 (screenshots/logs)
 - **Queue**: Cloudflare Queues
 - **Infrastructure**: Pulumi (TypeScript)
 - **Monorepo**: Bun workspaces + Turborepo
-- **Documentation**: Fumadocs (integrated into Next.js app)
 - **Linting**: Biome
 
 ## Current Status
 
 ### Implemented
-- User authentication (signup/login/logout with JWT + PBKDF2)
+- User authentication (signup/login/logout with JWT)
 - Invite code system (generation, validation, one-time use)
 - Admin user designation
 - Protected routes with auth middleware
-- Frontend pages (login, signup, home with auth states)
+- Frontend pages (login, signup, home, booking requests)
+- Booking request CRUD API and UI
 - Database schema (users, invites, booking requests, logs)
 - CLI tools for admin bootstrapping and invite generation
-- Documentation site with Fumadocs
+- Pulumi infrastructure (D1, R2, Queues)
 
-### In Progress / TODO
-- Booking request API endpoints (CRUD)
-- Booking automation logic (browser automation)
+### TODO
+- Booking automation logic (browser automation worker)
 - Credential encryption for stored booking site credentials
 - Screenshot capture and R2 storage
 - Admin dashboard UI
-- Booking status monitoring UI
 - Email notifications
 
 ## Getting Started
 
 ### Prerequisites
 
-- Bun (https://bun.sh)
+- [Bun](https://bun.sh)
+- [Just](https://github.com/casey/just) — `brew install just`
+- OrbStack or Docker (for local SQLite)
 - Cloudflare account (for deployment)
-- OrbStack or Docker (for local services)
-- **Just** (recommended) - `brew install just` or `cargo install just`
 
 ### Setup
 
-1. Install dependencies:
 ```bash
-bun install
-```
-
-2. Set up environment variables:
-```bash
-# Run setup to create .dev.vars templates
+# Install dependencies and create env templates
 just setup
 
-# Or manually create:
-# - apps/api/.dev.vars (for API worker secrets)
-# - apps/automation/.dev.vars (for automation worker secrets)
-# - .env.local (for Next.js frontend public vars)
-```
-
-See [Secrets Management](./docs/operations/secrets.md) for secrets management.
-
-3. Start local services:
-```bash
-# Start OrbStack/Docker (for local database)
-just orbstack-start  # or open OrbStack app
-just docker-up
+# Start Docker services
+just up
 
 # Start development servers
 just dev
 ```
 
-### Project Structure
+The frontend runs at `http://localhost:5173` and the API at `http://localhost:8787`.
+
+### Environment Files
+
+- `apps/api/.dev.vars` — API worker secrets (AUTH_SECRET, ADMIN_EMAIL, Cloudflare credentials)
+- `apps/automation/.dev.vars` — Automation worker secrets (AUTH_SECRET)
+- `.env.local` — Frontend config (VITE_API_URL)
+
+See [.agents/operations/secrets.md](.agents/operations/secrets.md) for details.
+
+## Project Structure
 
 ```
 reserve/
 ├── apps/
-│   ├── web/          # Next.js 16 frontend (React 19)
+│   ├── web/          # SvelteKit frontend (Svelte 5)
 │   ├── api/          # Cloudflare Workers API (Hono)
 │   └── automation/   # Booking automation worker
 ├── packages/
 │   └── shared/       # Shared types and utilities
 ├── infra/            # Pulumi infrastructure code
-├── docs/             # MDX documentation (Fumadocs)
 └── .architecture/    # Architecture decision records
 ```
 
-## Development
-
-### Quick Commands
+## Commands
 
 ```bash
-just setup      # First-time setup
-just dev        # Start all development servers
-just build      # Build all packages
-just check      # Run lint + typecheck
-just docs-dev   # Start docs server (http://localhost:3000/docs)
-just --list     # See all available commands
+just setup            # First-time setup
+just dev              # Start all dev servers
+just up               # Start Docker services
+just build            # Build all packages
+just check            # Lint + typecheck
+just --list           # See all commands
 ```
 
-### Database Commands
+### Database
 
 ```bash
-just db-generate  # Generate migrations from schema
-just db-migrate   # Apply migrations
-just db-studio    # Open Drizzle Studio GUI
+just db-generate      # Generate migrations from schema
+just db-migrate       # Apply migrations
+just db-studio        # Open Drizzle Studio GUI
 ```
 
 ### Admin Utilities
@@ -124,25 +111,22 @@ just secret-generate         # Generate AUTH_SECRET value
 
 | Endpoint | Method | Auth | Description |
 |----------|--------|------|-------------|
-| `/health` | GET | - | Health check |
-| `/api/auth/signup` | POST | - | Register with invite code |
-| `/api/auth/login` | POST | - | Authenticate user |
-| `/api/auth/logout` | POST | - | Clear auth session |
+| `/health` | GET | — | Health check |
+| `/api/auth/signup` | POST | — | Register with invite code |
+| `/api/auth/login` | POST | — | Authenticate user |
+| `/api/auth/logout` | POST | — | Clear auth session |
 | `/api/auth/me` | GET | Required | Get current user |
 | `/api/auth/invites` | POST | Admin | Generate invite code |
-
-## Documentation
-
-Project documentation is available at `/docs` when running the dev server, or browse the [`docs/`](./docs/) directory.
+| `/api/booking-requests` | GET | Required | List booking requests |
+| `/api/booking-requests/:id` | GET | Required | Get booking request |
+| `/api/booking-requests` | POST | Required | Create booking request |
+| `/api/booking-requests/:id` | PUT | Required | Update booking request |
+| `/api/booking-requests/:id` | DELETE | Required | Cancel booking request |
 
 ## Deployment
 
-Deploy infrastructure with Pulumi:
 ```bash
-cd infra
-pulumi up
+just deploy-api          # Deploy API worker
+just deploy-automation   # Deploy automation worker
+just deploy-infra        # Deploy Pulumi infrastructure
 ```
-
-Deploy to Cloudflare:
-- Frontend: Cloudflare Pages (connected to git)
-- Workers: `just deploy-api` or `just deploy-automation`
