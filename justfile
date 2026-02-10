@@ -212,23 +212,24 @@ invite-generate:
 # 3. export INVITE_AUTH_TOKEN="<paste token>"
 # 4. just invite-post
 invite-post:
-    set -e
-    api_url="${API_URL:-http://localhost:8787}"
-    if [ -z "${INVITE_AUTH_TOKEN:-}" ]; then
-        echo "Set INVITE_AUTH_TOKEN to your auth cookie (JWT) and run again."
-        echo "  Log in at http://localhost:3000/login, then copy the auth-token cookie value."
-        echo "  export INVITE_AUTH_TOKEN=\"<paste token>\""
-        exit 1
-    fi
-    response=$(curl -s -X POST "${api_url}/api/auth/invites" \
-        -H "Content-Type: application/json" \
-        -H "Cookie: auth-token=${INVITE_AUTH_TOKEN}")
-    if echo "$response" | grep -q '"code"'; then
-        code=$(echo "$response" | bun -e "const d=require('fs').readFileSync(0,'utf8'); const j=JSON.parse(d); console.log(j.invite?.code || '')")
-        echo "Created invite: $code"
-    else
-        echo "$response"
-    fi
+	#!/usr/bin/env bash
+	set -e
+	api_url="${API_URL:-http://localhost:8787}"
+	if [ -z "${INVITE_AUTH_TOKEN:-}" ]; then
+		echo "Set INVITE_AUTH_TOKEN to your auth cookie (JWT) and run again."
+		echo "  Log in at http://localhost:3000/login, then copy the auth-token cookie value."
+		echo "  export INVITE_AUTH_TOKEN=\"<paste token>\""
+		exit 1
+	fi
+	response=$(curl -s -X POST "${api_url}/api/auth/invites" \
+		-H "Content-Type: application/json" \
+		-H "Cookie: auth-token=${INVITE_AUTH_TOKEN}")
+	if echo "$response" | grep -q '"code"'; then
+		code=$(echo "$response" | bun -e "const d=require('fs').readFileSync(0,'utf8'); const j=JSON.parse(d); console.log(j.invite?.code || '')")
+		echo "Created invite: $code"
+	else
+		echo "$response"
+	fi
 
 # Generate password hash for bootstrap admin
 admin-hash password:
