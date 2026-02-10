@@ -54,16 +54,22 @@ async function handleLogout() {
 				{#if user}
 					<div>
 						<p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-							You're logged in! Next steps:
+							You're logged in! Get started:
 						</p>
-						<ul
-							class="list-disc list-inside space-y-2 text-sm text-gray-600 dark:text-gray-400"
-						>
-							<li>Configure booking preferences</li>
-							<li>Set up booking site credentials</li>
-							<li>Create booking requests</li>
-							<li>Monitor request status</li>
-						</ul>
+						<div class="flex gap-4">
+							<a
+								href="/requests"
+								class="rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700 transition-colors"
+							>
+								View Booking Requests
+							</a>
+							<a
+								href="/requests/new"
+								class="rounded-lg border border-gray-300 px-6 py-3 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800 transition-colors"
+							>
+								Create New Request
+							</a>
+						</div>
 					</div>
 				{:else}
 					<div class="space-y-4">

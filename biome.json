@@ -55,9 +55,13 @@
   "overrides": [
     {
       "include": ["*.svelte"],
+      "organizeImports": {
+        "enabled": false
+      },
       "linter": {
         "rules": {
           "correctness": {
+            "noUnusedImports": "off",
             "noUnusedVariables": "off"
           },
           "style": {

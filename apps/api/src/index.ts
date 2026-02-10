@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import authRoutes from './auth/routes';
+import bookingRoutes from './booking/routes';
 import { requestLogger } from './middleware/request-logger';
 import type { Env } from './types';
 
@@ -20,9 +21,7 @@ app.get('/health', (c) => {
 // Auth routes
 app.route('/api/auth', authRoutes);
 
-// API routes will be added here
-app.get('/api/*', (c) => {
-  return c.json({ message: 'API endpoint placeholder' }, 404);
-});
+// Booking request routes
+app.route('/api/booking-requests', bookingRoutes);
 
 export default app;
