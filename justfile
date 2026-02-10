@@ -108,25 +108,31 @@ test-e2e:
 
 # Generate migrations from schema changes
 db-generate:
-    bun run --cwd apps/api db:generate
+    bunx drizzle-kit generate --config apps/api/drizzle.config.ts
 
-# Apply pending migrations
+# Apply pending migrations to local D1
 db-migrate:
-    bun run --cwd apps/api db:migrate
+    bunx wrangler d1 migrations apply reserve --local -c apps/api/wrangler.toml
 
-# Open Drizzle Studio GUI
+# Apply migrations to remote D1 (production)
+db-migrate-prod:
+    bunx wrangler d1 migrations apply reserve --remote -c apps/api/wrangler.toml
+
+# Open Drizzle Studio GUI (requires better-sqlite3)
 db-studio:
-    bun run --cwd apps/api db:studio
+    @echo "Note: Drizzle Studio requires 'bun add -d better-sqlite3' in apps/api"
+    bunx drizzle-kit studio --config apps/api/drizzle.config.ts
 
 # ⚠️  Reset database (destructive!)
 db-reset:
-    @echo "⚠️  This will reset your database. Are you sure? (y/N)"
+    @echo "⚠️  This will reset your local database. Are you sure? (y/N)"
     @read -r confirm && [ "$$confirm" = "y" ] || exit 1
-    bun run --cwd apps/api db:migrate --force
+    rm -rf apps/api/.wrangler/state/v3/d1
+    bunx wrangler d1 migrations apply reserve --local -c apps/api/wrangler.toml
 
 # Create a named migration
 migration name:
-    bun run --cwd apps/api db:generate --name {{name}}
+    bunx drizzle-kit generate --config apps/api/drizzle.config.ts --name {{name}}
 
 # ─────────────────────────────────────────────────────────
 #  🐳 Docker
