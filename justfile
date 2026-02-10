@@ -25,8 +25,8 @@ install:
 dev:
 	@echo "Starting all development servers..."
 	bun run --cwd apps/web dev &
-	bun run --cwd apps/api dev &
-	bun run --cwd apps/automation dev &
+	bunx wrangler dev -c apps/api/wrangler.toml &
+	bunx wrangler dev -c apps/automation/wrangler.toml &
 	@echo "Development servers running. Press Ctrl+C to stop all."
 
 # Start only frontend
@@ -37,12 +37,12 @@ dev-web:
 # Start only API
 
 dev-api:
-	bun run --cwd apps/api dev
+	bunx wrangler dev -c apps/api/wrangler.toml
 
 # Start only automation worker
 
 dev-automation:
-	bun run --cwd apps/automation dev
+	bunx wrangler dev -c apps/automation/wrangler.toml
 
 # ============================================================================
 
