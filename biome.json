@@ -47,7 +47,8 @@
       ".turbo",
       "*.min.js",
       ".agents",
-      ".source"
+      ".source",
+      ".claude"
     ]
   }
 }

@@ -2,8 +2,12 @@
   "name": "reserve",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "bun@1.1.39",
+  "workspaces": ["apps/*", "packages/*"],
   "scripts": {
-    "dev": "pnpm --filter web dev",
+    "dev": "bun run --cwd apps/web dev",
+    "dev:api": "bun run --cwd apps/api dev",
+    "dev:all": "turbo run dev",
     "build": "turbo run build",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
@@ -12,19 +16,14 @@
     "test": "turbo run test",
     "test:e2e": "turbo run test:e2e",
     "check": "biome check . && turbo run typecheck",
-    "db:generate": "pnpm --filter api db:generate",
-    "db:migrate": "pnpm --filter api db:migrate",
-    "db:studio": "pnpm --filter api db:studio"
+    "db:generate": "bun run --cwd apps/api db:generate",
+    "db:migrate": "bun run --cwd apps/api db:migrate",
+    "db:studio": "bun run --cwd apps/api db:studio"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@types/node": "^25.0.9",
     "turbo": "^2.7.5",
     "typescript": "^5.9.3"
-  },
-  "engines": {
-    "node": ">=20.9.0",
-    "pnpm": ">=8.0.0"
-  },
-  "packageManager": "pnpm@10.28.1"
+  }
 }

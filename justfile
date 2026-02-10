@@ -12,27 +12,27 @@ default:
 
 # Install all dependencies
 install:
-    pnpm install
+    bun install
 
 # Start development servers (all apps)
 dev:
     @echo "Starting all development servers..."
-    pnpm --filter web dev &
-    pnpm --filter api dev &
-    pnpm --filter automation dev &
+    bun run --cwd apps/web dev &
+    bun run --cwd apps/api dev &
+    bun run --cwd apps/automation dev &
     @echo "Development servers running. Press Ctrl+C to stop all."
 
 # Start only frontend
 dev-web:
-    pnpm --filter web dev
+    bun run --cwd apps/web dev
 
 # Start only API
 dev-api:
-    pnpm --filter api dev
+    bun run --cwd apps/api dev
 
 # Start only automation worker
 dev-automation:
-    pnpm --filter automation dev
+    bun run --cwd apps/automation dev
 
 # ============================================================================
 # BUILDING
@@ -42,17 +42,17 @@ dev-automation:
 build:
     # Remove Next.js lock file if it exists (from interrupted builds)
     @rm -f apps/web/.next/lock 2>/dev/null || true
-    pnpm build
+    bun build
 
 # Build specific package
 build-web:
-    pnpm --filter web build
+    bun run --cwd apps/web build
 
 build-api:
-    pnpm --filter api build
+    bun run --cwd apps/api build
 
 build-automation:
-    pnpm --filter automation build
+    bun run --cwd apps/automation build
 
 # ============================================================================
 # CODE QUALITY
@@ -60,35 +60,35 @@ build-automation:
 
 # Lint all packages
 lint:
-    pnpm lint
+    bun lint
 
 # Lint specific package
 lint-web:
-    pnpm --filter web lint
+    bun run --cwd apps/web lint
 
 lint-api:
-    pnpm --filter api lint
+    bun run --cwd apps/api lint
 
 lint-automation:
-    pnpm --filter automation lint
+    bun run --cwd apps/automation lint
 
 # Format code with Prettier
 format:
-    pnpm format
+    bun format
 
 # Type check all packages
 typecheck:
-    pnpm typecheck
+    bun typecheck
 
 # Type check specific package
 typecheck-web:
-    pnpm --filter web typecheck
+    bun run --cwd apps/web typecheck
 
 typecheck-api:
-    pnpm --filter api typecheck
+    bun run --cwd apps/api typecheck
 
 typecheck-automation:
-    pnpm --filter automation typecheck
+    bun run --cwd apps/automation typecheck
 
 # Run all checks (lint + typecheck)
 check: lint typecheck
@@ -100,21 +100,21 @@ check: lint typecheck
 
 # Generate database migrations
 db-generate:
-    pnpm --filter api db:generate
+    bun run --cwd apps/api db:generate
 
 # Run database migrations
 db-migrate:
-    pnpm --filter api db:migrate
+    bun run --cwd apps/api db:migrate
 
 # Open Drizzle Studio (database GUI)
 db-studio:
-    pnpm --filter api db:studio
+    bun run --cwd apps/api db:studio
 
 # Reset database (WARNING: destructive)
 db-reset:
     @echo "⚠️  This will reset your database. Are you sure? (y/N)"
     @read -r confirm && [ "$$confirm" = "y" ] || exit 1
-    pnpm --filter api db:migrate --force
+    bun run --cwd apps/api db:migrate --force
 
 # ============================================================================
 # DOCKER / ORBSTACK
@@ -163,11 +163,11 @@ docker-status:
 
 # Deploy API worker
 deploy-api:
-    pnpm --filter api deploy
+    bun run --cwd apps/api deploy
 
 # Deploy automation worker
 deploy-automation:
-    pnpm --filter automation deploy
+    bun run --cwd apps/automation deploy
 
 # Deploy all workers
 deploy-workers: deploy-api deploy-automation
@@ -187,19 +187,19 @@ deploy-infra-preview:
 
 # Run all tests
 test:
-    pnpm test
+    bun test
 
 # Run E2E tests
 test-e2e:
-    pnpm --filter web test:e2e
+    bun run --cwd apps/web test:e2e
 
 # Run unit tests
 test-unit:
-    pnpm test:unit
+    bun test:unit
 
 # Run tests in watch mode
 test-watch:
-    pnpm test:watch
+    bun test:watch
 
 # ============================================================================
 # CLEANUP
@@ -215,7 +215,7 @@ clean:
 # Clean node_modules (nuclear option)
 clean-all: clean
     rm -rf node_modules apps/*/node_modules packages/*/node_modules
-    rm -rf pnpm-lock.yaml
+    rm -rf bun.lockb
     @echo "✅ Cleaned everything. Run 'just install' to reinstall."
 
 # ============================================================================
@@ -228,24 +228,33 @@ tree:
 
 # Check for outdated dependencies
 outdated:
-    pnpm outdated
+    bun outdated
 
 # Update dependencies (interactive)
 update:
-    pnpm update --interactive
+    bun update --interactive
 
 # Create a new migration
 migration name:
-    pnpm --filter api db:generate --name {{name}}
+    bun run --cwd apps/api db:generate --name {{name}}
 
 # Generate invite code (admin utility)
+# Note: This generates a code format. To actually create an invite:
+# 1. Log in as admin via the web UI
+# 2. Use the API endpoint: POST /api/auth/invites (requires admin auth)
+# 3. Or manually insert via Drizzle Studio: just db-studio
 invite-generate:
-    @node -e "console.log('INVITE-' + require('crypto').randomBytes(4).toString('hex').toUpperCase())"
+    @node -e "const p1 = require('crypto').randomBytes(4).toString('hex').toUpperCase(); const p2 = require('crypto').randomBytes(4).toString('hex').toUpperCase(); console.log('INVITE-' + p1 + '-' + p2); console.log(''); console.log('To create this invite:'); console.log('1. Log in as admin at http://localhost:3000/login'); console.log('2. POST to http://localhost:8787/api/auth/invites with auth cookie'); console.log('3. Or use Drizzle Studio: just db-studio')"
 
 # Generate secure random secret for AUTH_SECRET
 secret-generate:
     @node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
     @echo "Copy this value to AUTH_SECRET in your .dev.vars files"
+
+# Generate password hash for bootstrap admin user
+# Usage: just admin-hash <password>
+admin-hash password:
+    @cd apps/api && bun tsx src/cli/bootstrap-admin.ts hash {{password}}
 
 # ============================================================================
 # DOCUMENTATION (FUMADOCS)
@@ -253,7 +262,7 @@ secret-generate:
 
 # Install Fumadocs dependencies
 docs-install:
-    cd apps/web && pnpm add fumadocs-core fumadocs-mdx fumadocs-ui @types/mdx
+    cd apps/web && bun add fumadocs-core fumadocs-mdx fumadocs-ui @types/mdx
 
 # Start docs development server
 # Fumadocs is integrated into the Next.js app - docs are served at /docs route
@@ -265,15 +274,15 @@ docs-dev:
     @echo "   http://localhost:3000/docs"
     @echo "   (or http://localhost:3001/docs if port 3000 is in use)"
     @echo ""
-    cd apps/web && pnpm dev
+    cd apps/web && bun dev
 
 # Build documentation
 docs-build:
-    cd apps/web && pnpm build
+    cd apps/web && bun build
 
 # View docs locally (after build)
 docs-preview:
-    cd apps/web && pnpm start
+    cd apps/web && bun start
     @echo "📚 Production docs available at http://localhost:3000/docs"
 
 # Open docs in browser (macOS)
@@ -283,7 +292,7 @@ docs-open:
 
 # Generate docs source files
 docs-generate:
-    cd apps/web && pnpm build
+    cd apps/web && bun build
     @echo "✅ Generated docs source files in .source/"
 
 # Clean docs build artifacts
@@ -295,11 +304,11 @@ docs-clean:
 # Upgrade all dependencies to latest versions
 deps-upgrade:
     @echo "🚀 Upgrading dependencies to latest versions..."
-    cd apps/web && pnpm update --latest
-    cd apps/api && pnpm update --latest
-    cd apps/automation && pnpm update --latest
-    cd packages/shared && pnpm update --latest
-    pnpm update --latest
+    cd apps/web && bun update --latest
+    cd apps/api && bun update --latest
+    cd apps/automation && bun update --latest
+    cd packages/shared && bun update --latest
+    bun update --latest
     @echo "✅ All dependencies upgraded!"
 
 # Fix peer dependency warnings (suppress known safe warnings)
@@ -317,7 +326,7 @@ setup:
     @echo "🚀 Setting up Reserve project..."
     @echo ""
     @echo "1. Installing dependencies..."
-    pnpm install
+    bun install
     @echo ""
     @echo "2. Setting up environment..."
     @if [ ! -f apps/api/.dev.vars ]; then \
